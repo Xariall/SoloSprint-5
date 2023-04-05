@@ -1,0 +1,3 @@
+1. django-admin startproject name_project # Создание проекта
+2. python3 manage.py runserver # Создание локального сервера
+3. python manage.py startapp name_app
