@@ -19,6 +19,10 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+    def remove(self):
+        self.available = False
+        self.save()
+
     @property
     def imageURL(self):
         try:
@@ -36,6 +40,12 @@ class Order(models.Model):
     def __str__(self):
         return str(self.id)
     
+    @property
+    def shipping(self):
+        shipping = False
+        orderitem = self.orderitem_set.all()
+        return shipping
+
     @property
     def get_cart_total(self):
         orderitems = self.orderitem_set.all()
