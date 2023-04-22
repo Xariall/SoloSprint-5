@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import JsonResponse
+from django.contrib.auth import login, authenticate
 import json
 import datetime
 from .models import *
+from .forms import CustomerRegistrationForm, CustomerLoginForm
 
 # Create your views here.
 def store(request):
@@ -41,24 +43,29 @@ def cart(request):
 		order = {'get_cart_total':0, 'get_cart_items':0, 'shipping':False}
 		cartItems = order['get_cart_items']
 
-	""" for i in cart:
-		try:
-			cartItems += cart[i]['quantity']
+		for i in cart:
+			#We use try block to prevent items in cart that may have been removed from causing error
+			try:
+				cartItems += cart[i]['quantity']
 
-			product = Product.objects.get(id=i)
-			total = (product.price * cart[i]['quantity'])
+				product = Product.objects.get(id=i)
+				total = (product.price * cart[i]['quantity'])
 
-			order['get_cart_total'] += total
-			order['get_cart_items'] += cart[i]['quantity']
+				order['get_cart_total'] += total
+				order['get_cart_items'] += cart[i]['quantity']
 
-			item = {
-				'id':product.id,
-				"product":{'id':product.id, 'name':product.name, 'price':product.price, 'imageURL':product.imageURL},
-				'quantity': cart[i]['quantity'], 'available':product.available, 'get_total': total,
-			}
-			items.append(item)
-		except:
-			pass """
+				item = {
+					'id':product.id,
+					'product':{'id':product.id,'name':product.name, 'price':product.price, 
+					'imageURL':product.imageURL}, 'quantity':cart[i]['quantity'],
+					'digital':product.digital,'get_total':total,
+					}
+				items.append(item)
+
+				if product.digital == False:
+					order['shipping'] = True
+			except:
+				pass
 
 	context = {'items':items, 'order':order, 'cartItems':cartItems}
 	return render(request, 'main/cart.html', context)
@@ -109,7 +116,7 @@ def processOrder(request):
 	if request.user.is_authenticated:
 		customer = request.user.customer
 		order, created = Order.objects.get_or_create(customer=customer, complete=False)
-		total = float(data['form']['total'])
+		total = float(data['form']['total'].replace(',', '.'))
 		order.transaction_id = transaction_id
 
 		if total == order.get_cart_total:
@@ -129,3 +136,35 @@ def processOrder(request):
 		print('User is not logged in')
 
 	return JsonResponse('Payment submitted..', safe=False)
+
+
+def customer_register(request):
+    if request.method == 'POST':
+        form = CustomerRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            name = form.cleaned_data.get('name')
+            email = form.cleaned_data.get('email')
+            customer = Customer(user=user, name=name, email=email)
+            customer.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = CustomerRegistrationForm()
+    return render(request, 'main/register.html', {'form': form})
+
+def customer_login(request):
+    if request.method == 'POST':
+        form = CustomerLoginForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                form.add_error(None, 'Неверное имя пользователя или пароль')
+    else:
+        form = CustomerLoginForm()
+    return render(request, 'main/login.html', {'form': form})

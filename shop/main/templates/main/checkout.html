@@ -143,7 +143,10 @@
 	    	.then((response) => response.json())
 	    	.then((data) => {
 				  console.log('Success:', data);
-				  alert('Transaction completed');  
+				  alert('Transaction completed');
+				  // if user not customer then delete cart after checkout 
+				    cart = {}
+					document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
 				  window.location.href = "{% url 'store' %}"
 
 				})
