@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth import login, authenticate
 import json
@@ -168,3 +168,19 @@ def customer_login(request):
     else:
         form = CustomerLoginForm()
     return render(request, 'main/login.html', {'form': form})
+
+def product_detail(request, product_id):
+
+	if request.user.is_authenticated:
+		customer = request.user.customer
+		order, created = Order.objects.get_or_create(customer=customer, complete=False)
+		items = order.orderitem_set.all()
+		cartItems = order.get_cart_items
+	else:
+		#Create empty cart for now for non-logged in user
+		items = []
+		order = {'get_cart_total':0, 'get_cart_items':0, 'shipping':False}
+		cartItems = order['get_cart_items']
+
+	product = get_object_or_404(Product, pk=product_id)
+	return render(request, 'main/product_detail.html', {'product': product, 'cartItems':cartItems})

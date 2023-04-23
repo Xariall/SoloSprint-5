@@ -11,7 +11,7 @@
                 <hr>
 
                 <button data-product="{{product.id}}" data-action="add" class="btn btn-outline-secondary add-btn update-cart">В Корзину</button>
-                <a class="btn btn-outline-success" href="#">Просмотр</a>
+                <a class="btn btn-outline-success" href="{% url 'product_detail' product.id %}">Просмотр</a>
                 <h4 style="display: inline-block; right: 100px;"><strong>${{product.price|floatformat:2}}</strong></h4>
             </div>
         </div>
