@@ -1,0 +1,32 @@
+{% extends 'main/main.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-4">
+        <img class="thumbnail" src="{{product.imageURL}}">
+        <div class="box-element product">
+            <h6><strong>{{product.name}}</strong></h6>
+            <hr>
+            <p>{{ product.description }}</p>
+                    <button data-product="{{product.id}}" data-action="add" class="btn btn-outline-secondary add-btn update-cart">Add to Cart</button>
+
+        <h4 style="display: inline-block; right: 100px;"><strong>${{product.price|floatformat:2}}</strong></h4>
+    </div>
+</div>
+
+<div class="col-lg-8">
+    <div class="box-element product">
+        <h6><strong>Shoe Characteristics</strong></h6>
+        <hr>
+        <ul>
+            <li><strong>Brand:</strong> {{product.brand}}</li>
+            <li><strong>Model:</strong> {{product.model}}</li>
+            <li><strong>Color:</strong> {{product.color}}</li>
+            <li><strong>Size:</strong> {{product.size}}</li>
+            <li><strong>Material:</strong> {{product.material}}</li>
+        </ul>
+    </div>
+</div>
+</div>
+{% endblock content %}
